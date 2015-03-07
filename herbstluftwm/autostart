@@ -1,0 +1,183 @@
+#!/bin/bash
+
+# this is a simple config for herbstluftwm
+
+function hc() {
+    herbstclient "$@"
+}
+
+hc emit_hook reload
+
+# set dzen as a dock
+xprop -id "$(xwininfo -name "dzen title" | sed -n 2p | awk {'print $4'})"  -f  _NET_WM_WINDOW_TYPE 32a -set _NET_WM_WINDOW_TYPE _NET_WM_WINDOW_TYPE_DOCK
+
+#xsetroot -solid '#000000'
+#feh --bg-max ~/Downloads/dumpster-hot-tub.jpg
+feh --bg-fill ~/Pictures/sea-cliff-village.jpeg
+setxkbmap -option ctrl:nocaps
+xautolock -time 5 -locker 'i3lock -i /home/mark/Pictures/dumpster-hot-tub.png -t -u' &
+#compton -c &
+#compton -bcCGf -i 0.8 -e 0.8 --no-fading-openclose --sw-opti
+#compton --config ~/.config/compton.conf -b
+xcompmgr -c -C -t-5 -l-5 -r4.2 -o.30 &
+dunst &
+
+# remove all existing keybindings
+hc keyunbind --all
+
+# keybindings
+Mod=Mod1
+hc keybind $Mod-Shift-q quit
+hc keybind $Mod-Shift-r reload
+hc keybind $Mod-Shift-c close
+#hc keybind $Mod-Return spawn xterm
+hc keybind $Mod-Shift-Return spawn gnome-terminal
+hc keybind $Mod-Return spawn urxvt256c-ml
+#hc keybind $Mod-Shift-Delete spawn i3lock -u -c ff0000
+hc keybind $Mod-Shift-Delete spawn i3lock -u -c 000000
+hc keybind $Mod-Shift-s spawn gnome-screenshot -i
+hc keybind $Mod-Shift-a spawn xrandr --output DVI-I-0 --rotate inverted
+hc keybind $Mod-Shift-b spawn xrandr --output DVI-I-0 --rotate normal
+
+hc set default_frame_layout 2
+
+# tags
+TAG_NAMES=( {1..9} )
+TAG_KEYS=( {1..9} 0 )
+
+hc rename default "${TAG_NAMES[0]}" || true
+for i in ${!TAG_NAMES[@]} ; do
+    hc add "${TAG_NAMES[$i]}"
+    key="${TAG_KEYS[$i]}"
+    if ! [ -z "$key" ] ; then
+        hc keybind "$Mod-$key" use_index "$i"
+        hc keybind "$Mod-Shift-$key" move_index "$i"
+    fi
+done
+
+# cycle through tags
+hc keybind $Mod-period use_index +1 --skip-visible
+hc keybind $Mod-comma  use_index -1 --skip-visible
+hc keybind $Mod-Right focus right
+hc keybind $Mod-Left  focus left
+hc keybind $Mod-Up focus up
+hc keybind $Mod-Down focus down
+hc keybind $Mod-q use_previous
+
+# layouting
+hc keybind $Mod-r remove
+hc keybind $Mod-space cycle_layout 1
+hc keybind $Mod-u split vertical 0.5
+hc keybind $Mod-o split horizontal 0.5
+hc keybind $Mod-s floating toggle
+hc keybind $Mod-f fullscreen toggle
+hc keybind $Mod-p pseudotile toggle
+
+# resizing
+RESIZESTEP=0.05
+hc keybind $Mod-Control-h resize left +$RESIZESTEP
+hc keybind $Mod-Control-j resize down +$RESIZESTEP
+hc keybind $Mod-Control-k resize up +$RESIZESTEP
+hc keybind $Mod-Control-l resize right +$RESIZESTEP
+
+# mouse
+hc mouseunbind --all
+hc mousebind $Mod-Button1 move
+hc mousebind $Mod-Button2 resize
+hc mousebind $Mod-Button3 zoom
+
+# focus
+hc keybind $Mod-BackSpace   cycle_monitor
+hc keybind $Mod-Tab         cycle_all +1
+hc keybind $Mod-Shift-Tab   cycle_all -1
+hc keybind $Mod-c cycle
+hc keybind $Mod-h focus left
+hc keybind $Mod-j focus down
+hc keybind $Mod-k focus up
+hc keybind $Mod-l focus right
+hc keybind $Mod-i jumpto urgent
+hc keybind $Mod-Shift-h shift left
+hc keybind $Mod-Shift-j shift down
+hc keybind $Mod-Shift-k shift up
+hc keybind $Mod-Shift-l shift right
+
+# colors
+hc set frame_border_active_color '#222222'
+hc set frame_border_normal_color '#1d1d1d'
+#hc set frame_border_normal_color '#101010'
+hc set frame_bg_normal_color '#565656'
+hc set frame_bg_active_color '#345F0C'
+hc set frame_border_width 0
+hc set always_show_frame 0
+hc set frame_gap 3
+hc set frame_padding 1
+hc set frame_bg_transparent 1
+#hc set frame_active_opacity 80
+#hc set frame_normal_opacity 50
+hc set smart_frame_surroundings 1
+
+hc set window_border_width 1
+hc set window_border_inner_width 1
+#hc set window_border_normal_color '#454545'
+hc set window_border_normal_color ''
+hc set window_border_active_color '#9fbc00'
+hc set window_border_urgent_color '#C81C1E'
+# add overlapping window borders
+#hc set window_gap -2
+hc set window_gap 0
+hc set snap_distance 20
+hc set snap_gap 5
+hc set smart_window_surroundings 0
+
+hc set auto_detect_monitors 1
+hc set focus_stealing_prevention 1
+
+hc set focus_follows_mouse 1
+
+hc keybind $Mod-z spawn dmenu_run -i -nb "#000000" \
+              -nf "#DDDDDD" \
+              -sb "#9C9C55" \
+              -sf "#FFFFFF" \
+              -p '>' \
+              -fn '-*-terminus-bold-r-*-*-18-*-*-*-*-*-*-*'
+
+hc load 9 "(split horizontal:0.500000:0 (clients vertical:1 0xc00062 0xc01549) (clients max:0 0x1000110))"
+
+# rules
+hc unrule -F
+#hc rule class=XTerm tag=3 # move all xterms to tag 3
+hc rule class=Pidgin tag=9 pseudotile=off
+hc rule class=Firefox tag=4 pseudotile=off
+hc rule class=Hexchat tag=6 pseudotile=off
+hc rule name=Calculator pseudotile=on
+hc rule class=Gcalctool pseudotile=on
+hc rule class=gcalctool pseudotile=on
+hc rule focus=on
+# give focus to most common terminals
+hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|gnome-terminal)' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
+hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK)' manage=off
+
+# unlock, just to be sure
+hc unlock
+
+herbstclient set tree_style '╾│ ├└╼─┐'
+
+# do multi monitor setup here, e.g.:
+# hc remove_monitor 1
+# hc move_monitor 0 1280x1024+0+0
+# hc add_monitor 1280x1024+1280+0
+
+hc detect_monitors
+
+# find the panel
+panel=~/.config/herbstluftwm/panel.sh
+[ -x "$panel" ] || panel=/etc/xdg/herbstluftwm/panel.sh
+for monitor in $(herbstclient list_monitors | cut -d: -f1) ; do
+    # start it on each monitor
+    $panel $monitor &
+done
+
+xrandr --output DVI-0 --right-of DisplayPort-0
+urxvt256c-mld &
