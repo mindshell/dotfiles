@@ -30,9 +30,8 @@ Mod=Mod1
 hc keybind $Mod-Shift-q quit
 hc keybind $Mod-Shift-r reload
 hc keybind $Mod-Shift-c close
-#hc keybind $Mod-Return spawn xterm
-hc keybind $Mod-Shift-Return spawn gnome-terminal
-hc keybind $Mod-Return spawn urxvt256c-ml
+hc keybind $Mod-Return spawn gnome-terminal
+hc keybind $Mod-Shift-Return spawn urxvt256c-ml
 #hc keybind $Mod-Shift-Delete spawn i3lock -u -c ff0000
 hc keybind $Mod-Shift-Delete spawn i3lock -u -c 000000
 hc keybind $Mod-Shift-s spawn gnome-screenshot -i
@@ -179,5 +178,4 @@ for monitor in $(herbstclient list_monitors | cut -d: -f1) ; do
     $panel $monitor &
 done
 
-xrandr --output DVI-0 --right-of DisplayPort-0
-urxvt256c-mld &
+gnome-terminal &
